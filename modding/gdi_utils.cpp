@@ -19,6 +19,10 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO: PORT Windows-specific GDI+ to Cairo
+// or try using this https://github.com/mono/libgdiplus
+// don't really want to depend on it
+
 #include "global/precompiled.h"
 #include "modding/gdi_utils.h"
 #include "global/vars.h"

@@ -39,9 +39,9 @@
 
 /** @cond Doxygen_Suppress */
 #ifdef BUILD_DLL
-#define DLL_EXPORT __declspec(dllexport)
+#define DLL_EXPORT __attribute__ ((visibility("default")))
 #else
-#define DLL_EXPORT __declspec(dllimport)
+#define DLL_EXPORT __attribute__ ((visibility("default")))
 #endif
 /** @endcond */
 

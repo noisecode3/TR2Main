@@ -741,7 +741,7 @@ int __cdecl BGND2_LoadPicture(LPCTSTR fileName, BOOL isTitle, BOOL isReload) {
 		goto FAIL;
 	}
 
-	if( !stricmp(PathFindExtension(fullPath), ".pcx") ) {
+        if( !strcasecmp(PathFindExtension(fullPath), ".pcx") ) {
 		hFile = CreateFile(fullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if( hFile == INVALID_HANDLE_VALUE ) {
 			goto FAIL;
