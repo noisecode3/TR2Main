@@ -23,14 +23,16 @@
 #include "modding/raw_input.h"
 #include "global/vars.h"
 
+//libhid or libusb
+
 #ifdef FEATURE_INPUT_IMPROVED
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <hidusage.h>
-#include <hidpi.h>
-#include <hidsdi.h>
+//#include <hidpi.h>
+//#include <hidsdi.h>
 #include <setupapi.h>
 
 #ifdef __cplusplus

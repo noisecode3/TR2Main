@@ -19,17 +19,39 @@
  * along with TR2Main.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO: PORT Windows-specific GDI+ to Cairo
-// or try using this https://github.com/mono/libgdiplus
-// don't really want to depend on it
+// TODO: I made it compile BUT there is logical errors now
+// It could work with FreeImage and/or wines weird half implemented gdi+
 
 #include "global/precompiled.h"
 #include "modding/gdi_utils.h"
 #include "global/vars.h"
 #include <gdiplus.h>
+#include <wchar.h>
+/*
+#include <FreeImage.h>
 
-using namespace Gdiplus;
+bool GetImageDimensions(const char* filename, int& width, int& height) {
+    // Load the image file
+    FREE_IMAGE_FORMAT fif = FreeImage_GetFileType(filename, 0);
+    FIBITMAP* image = FreeImage_Load(fif, filename, 0);
 
+    // Check if the image was successfully loaded
+    if (!image) {
+        // Handle error: failed to load image
+        return false;
+    }
+
+    // Get the width and height of the image
+    width = FreeImage_GetWidth(image);
+    height = FreeImage_GetHeight(image);
+
+    // Unload the image from memory
+    FreeImage_Unload(image);
+
+    return true;
+}
+
+ */
 static const WCHAR *GDI_Encoders[] = {
 	L"image/bmp",
 	L"image/jpeg",
@@ -40,15 +62,15 @@ static ULONG_PTR GDI_Token = 0;
 
 static int GetEncoderClsid(const WCHAR *format, CLSID *pClsid) {
 	unsigned int num = 0, nSize = 0;
-	GetImageEncodersSize(&num, &nSize);
+	Gdiplus::DllExports::GdipGetImageEncodersSize(&num, &nSize);
 	if( nSize == 0 ) {
 		return -1;
 	}
-	ImageCodecInfo *pImageCodecInfo = (ImageCodecInfo *)malloc(nSize);
+	Gdiplus::ImageCodecInfo *pImageCodecInfo = (Gdiplus::ImageCodecInfo *)malloc(nSize);
 	if( pImageCodecInfo == NULL ) {
 		return -1;
 	}
-	GetImageEncoders(num, nSize, pImageCodecInfo);
+	Gdiplus::DllExports::GdipGetImageEncoders(num, nSize, pImageCodecInfo);
 
 	for( DWORD j = 0; j < num; ++j) {
 		if(wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
@@ -60,7 +82,6 @@ static int GetEncoderClsid(const WCHAR *format, CLSID *pClsid) {
 	free(pImageCodecInfo);
 	return -1;
 }
-
 HBITMAP CreateBitmapFromDC(HDC dc, RECT *rect, LPVOID *lpBits, PALETTEENTRY *pal) {
 	if( dc == NULL || rect == NULL || lpBits == NULL ) {
 		return NULL; // wrong parameters
@@ -114,15 +135,15 @@ HBITMAP CreateBitmapFromDC(HDC dc, RECT *rect, LPVOID *lpBits, PALETTEENTRY *pal
 
 bool __cdecl GDI_Init() {
 	if( !GDI_Token ) {
-		GdiplusStartupInput gdiplusStartupInput;
-		GdiplusStartup(&GDI_Token, &gdiplusStartupInput, NULL);
+		Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+		Gdiplus::GdiplusStartup(&GDI_Token, &gdiplusStartupInput, NULL);
 	}
 	return ( GDI_Token != 0 );
 }
 
 void __cdecl GDI_Cleanup() {
 	if( GDI_Token ) {
-		GdiplusShutdown(GDI_Token);
+		Gdiplus::GdiplusShutdown(GDI_Token);
 		GDI_Token = 0;
 	}
 }
@@ -136,19 +157,20 @@ int GDI_SaveImageFile(LPCSTR filename, GDI_FILEFMT format, DWORD quality, HBITMA
 		return -1; // wrong format
 	}
 
-	Status status = Ok;
+	Gdiplus::Status status = Gdiplus::Ok;
 
 	CLSID imageCLSID;
-	Bitmap *gdi_bitmap = new Bitmap(hbmBitmap, (HPALETTE)NULL);
+        Gdiplus::GpBitmap **gdi_bitmap;
+        Gdiplus::DllExports::GdipCreateBitmapFromHBITMAP(hbmBitmap, (HPALETTE)NULL, gdi_bitmap);
 	if( gdi_bitmap == NULL ) {
 		return -1;
 	}
 
-	EncoderParameters encoderParams;
+	Gdiplus::EncoderParameters encoderParams;
 	encoderParams.Count = 1;
 	encoderParams.Parameter[0].NumberOfValues = 1;
-	encoderParams.Parameter[0].Guid  = EncoderQuality;
-	encoderParams.Parameter[0].Type  = EncoderParameterValueTypeLong;
+	//encoderParams.Parameter[0].Guid  = EncoderQuality;
+	encoderParams.Parameter[0].Type  = Gdiplus::EncoderParameterValueTypeLong;
 	encoderParams.Parameter[0].Value = &quality;
 	GetEncoderClsid(GDI_Encoders[format], &imageCLSID);
 
@@ -161,12 +183,13 @@ int GDI_SaveImageFile(LPCSTR filename, GDI_FILEFMT format, DWORD quality, HBITMA
 			delete gdi_bitmap;
 			return -1;
 		}
-		status = gdi_bitmap->Save(wc_fname, &imageCLSID, &encoderParams);
+
+                //status = Gdiplus::DllExports::GdipSaveImageToFile(gdi_bitmap, wc_fname, &imageCLSID, &encoderParams);
 	}
 #endif // UNICODE
 
 	delete gdi_bitmap;
-	return ( status == Ok ) ? 0 : -1;
+	return ( status == Gdiplus::Ok ) ? 0 : -1;
 }
 
 
@@ -180,10 +203,10 @@ int GDI_LoadImageFile(LPCSTR filename, BYTE **bmPtr, DWORD *width, DWORD *height
 	DWORD bmSize = 0;
 	BYTE *src = NULL;
 	BYTE *dst = NULL;
-	Bitmap *gdi_bitmap = NULL;
-	BitmapData bmData;
-	Status status;
-	PixelFormat pixelFmt;
+	Gdiplus::GpBitmap *gdi_bitmap = NULL;
+	Gdiplus::BitmapData bmData;
+	Gdiplus::Status status;
+	Gdiplus::PixelFormat pixelFmt;
 
 	switch( bpp ) {
 		case 32 :
@@ -208,7 +231,8 @@ int GDI_LoadImageFile(LPCSTR filename, BYTE **bmPtr, DWORD *width, DWORD *height
 			result = -1;
 			goto CLEANUP;
 		}
-		gdi_bitmap = new Bitmap(wc_fname);
+                Gdiplus::GpBitmap **gdi_bitmap;
+                Gdiplus::DllExports::GdipCreateBitmapFromFile(wc_fname, gdi_bitmap);
 	}
 #endif // UNICODE
 
@@ -218,8 +242,10 @@ int GDI_LoadImageFile(LPCSTR filename, BYTE **bmPtr, DWORD *width, DWORD *height
 		goto CLEANUP;
 	}
 
-	*width = gdi_bitmap->GetWidth();
-	*height = gdi_bitmap->GetHeight();
+	*width = 0;
+	*height = 0;
+	//*width = gdi_bitmap->width;
+	//*height = gdi_bitmap->GetHeight();
 
 	bmSize = (*width) * (*height) * (bpp/8);
 	*bmPtr = (BYTE *)malloc(bmSize * (bpp/8));
@@ -230,11 +256,13 @@ int GDI_LoadImageFile(LPCSTR filename, BYTE **bmPtr, DWORD *width, DWORD *height
 	}
 
 	{ // rect is temporary here
-		Rect rect(0, 0, *width, *height);
-		status = gdi_bitmap->LockBits(&rect, ImageLockModeRead, pixelFmt, &bmData);
+		Gdiplus::GpRect rect;
+                //(0, 0, *width, *height);
+		
+                status = Gdiplus::DllExports::GdipBitmapLockBits(gdi_bitmap ,&rect ,Gdiplus::ImageLockModeRead, pixelFmt, &bmData);
 	}
 
-	if( status != Ok ) {
+	if( status != Gdiplus::Ok ) {
 		// failed to lock the bitmap
 		free(bmPtr);
 		result = -1;
@@ -253,7 +281,7 @@ int GDI_LoadImageFile(LPCSTR filename, BYTE **bmPtr, DWORD *width, DWORD *height
 		src += bmData.Stride;
 	}
 
-	gdi_bitmap->UnlockBits(&bmData);
+        Gdiplus::DllExports::GdipBitmapUnlockBits(gdi_bitmap,&bmData);
 
 CLEANUP :
 	if( gdi_bitmap != NULL ) {
