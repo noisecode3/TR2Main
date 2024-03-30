@@ -4,12 +4,14 @@ CXX = wineg++
 RC = wrc
 AR = ar
 
-CFLAGS := \
+DXCONFIG := \
     -D_RELEASE \
-    -DBUILD_DLL \
     -DDIRECT3D_VERSION=0x900 \
     -DDIRECTINPUT_VERSION=0x900 \
-    -DDIRECTSOUND_VERSION=0x900 \
+    -DDIRECTSOUND_VERSION=0x900 
+
+CONFIG := \
+    -DBUILD_DLL \
     -D_WIN32_WINNT=0x501 \
     -DFEATURE_ASSAULT_SAVE \
     -DFEATURE_AUDIO_IMPROVED \
@@ -29,18 +31,31 @@ CFLAGS := \
     -DFEATURE_SUBFOLDERS \
     -DFEATURE_VIDEOFX_IMPROVED \
     -DFEATURE_VIEW_IMPROVED \
-    -DFEATURE_WINDOW_STYLE_FIX \
+    -DFEATURE_WINDOW_STYLE_FIX
+
+CFLAGS := \
     -m32 \
     -O3 \
-    -fpermissive \
     -fvisibility=hidden \
+    -Wall \
+    -Wextra \
+    -Wpedantic \
+    -Wno-unused-parameter \
+    -Winvalid-pch \
+    -Wno-unknown-pragmas \
     -s
 
-
-# Target Wine
-TARGET := bin/DX9Wine-Release/TR2Main.dll
-
-all: $(TARGET)
+CXXFLAGS := \
+    -m32 \
+    -O3 \
+    -fvisibility=hidden \
+    -Wall \
+    -Wextra \
+    -Wpedantic \
+    -Wno-unused-parameter \
+    -Winvalid-pch \
+    -Wno-unknown-pragmas \
+    -s
 
 # Define source directories, those should not mix definitions
 SRC_PRE := global/precompiled.h
@@ -98,13 +113,13 @@ OBJS_CPP_SPECIFIC := $(patsubst $(SRC_SPECIFIC_DIR)/%.cpp,$(OBJ_SPECIFIC_DIR)/%.
 OBJS_C_JSON_PARSER := $(patsubst $(SRC_JSON_PARSER_DIR)/%.c,$(OBJ_JSON_PARSER_DIR)/%.o,$(SRCS_C_JSON_PARSER))
 OBJS_CPP_JSON_PARSER := $(patsubst $(SRC_JSON_PARSER_DIR)/%.cpp,$(OBJ_JSON_PARSER_DIR)/%.o,$(SRCS_CPP_JSON_PARSER))
 
-# Define targets
-$(TARGET): $(OBJS_C_GAME) $(OBJS_CPP_GAME) \
-     	   $(OBJS_C_GLOBAL) $(OBJS_CPP_GLOBAL) \
-           $(OBJS_C_MODDING) $(OBJS_CPP_MODDING) \
-           $(OBJS_C_3DSYSTEM) $(OBJS_CPP_3DSYSTEM) \
-           $(OBJS_C_SPECIFIC) $(OBJS_CPP_SPECIFIC) \
-           $(OBJS_C_JSON_PARSER) $(OBJS_CPP_JSON_PARSER)
+
+ALL_OBJS := $(OBJS_C_GAME) $(OBJS_CPP_GAME) \
+            $(OBJS_C_GLOBAL) $(OBJS_CPP_GLOBAL) \
+            $(OBJS_C_MODDING) $(OBJS_CPP_MODDING) \
+            $(OBJS_C_3DSYSTEM) $(OBJS_CPP_3DSYSTEM) \
+            $(OBJS_C_SPECIFIC) $(OBJS_CPP_SPECIFIC) \
+            $(OBJS_C_JSON_PARSER) $(OBJS_CPP_JSON_PARSER)
 
 
 GAME_EXTRA := -iquoteobj\DX9Wine-Release\game \
@@ -125,77 +140,91 @@ SPECIFIC_EXTRA := -iquoteobj\DX9Wine-Release\specific \
 JSON_PARSER_EXTRA := -iquoteobj\DX9Wine-Release\json-parser \
 	             -Iobj\DX9Wine-Release\json-parser -I.
 
-.DEFAULT_GOAL := all
-
-
-
-$(OBJ_PRE): $(SRC_PRE)
-	$(CXX) $(CFLAGS) -c -o $@ $<
-
-# Rule to compile each .c file into a .o file
-$(OBJ_GAME_DIR)/%.o: $(SRC_GAME_DIR)/%.c | $(OBJ_GAME_DIR)
-	$(CC) $(CFLAGS) $(GAME_EXTRA) -c $< -o $@
-
-$(OBJ_GLOBAL_DIR)/%.o: $(SRC_GLOBAL_DIR)/%.c | $(OBJ_GLOBAL_DIR)
-	$(CC) $(CFLAGS) $(GLOBAL_EXTRA) -c $< -o $@
-
-$(OBJ_MODDING_DIR)/%.o: $(SRC_MODDING_DIR)/%.c | $(OBJ_MODDING_DIR)
-	$(CC) $(CFLAGS) $(MODDING_EXTRA) -c $< -o $@
-
-$(OBJ_3DSYSTEM_DIR)/%.o: $(SRC_3DSYSTEM_DIR)/%.c | $(OBJ_3DSYSTEM_DIR)
-	$(CC) $(CFLAGS) $(3DSYSTEM_EXTRA) -c $< -o $@
-
-$(OBJ_SPECIFIC_DIR)/%.o: $(SRC_SPECIFIC_DIR)/%.c | $(OBJ_SPECIFIC_DIR)
-	$(CC) $(CFLAGS) $(SPECIFIC_EXTRA) -c $< -o $@
-
-$(OBJ_JSON_PARSER_DIR)/%.o: $(SRC_JSON_PARSER_DIR)/%.c | $(OBJ_JSON_PARSER_DIR)
-	$(CC) $(CFLAGS) $(JSON_PARSER_EXTRA) -c $< -o $@
-
-# Rule to compile each .cpp file into a .o file
-$(OBJ_GAME_DIR)/%.o: $(SRC_GAME_DIR)/%.cpp | $(OBJ_GAME_DIR)
-	$(CXX) $(CFLAGS) $(GAME_EXTRA) -c $< -o $@
-
-$(OBJ_GLOBAL_DIR)/%.o: $(SRC_GLOBAL_DIR)/%.cpp | $(OBJ_GLOBAL_DIR)
-	$(CXX) $(CFLAGS) $(GLOBAL_EXTRA) -c $< -o $@
-
-$(OBJ_MODDING_DIR)/%.o: $(SRC_MODDING_DIR)/%.cpp | $(OBJ_MODDING_DIR)
-	$(CXX) $(CFLAGS) $(MODDING_EXTRA) -c $< -o $@
-
-$(OBJ_3DSYSTEM_DIR)/%.o: $(SRC_3DSYSTEM_DIR)/%.cpp | $(OBJ_3DSYSTEM_DIR)
-	$(CXX) $(CFLAGS) $(3DSYSTEM_EXTRA) -c $< -o $@
-
-$(OBJ_SPECIFIC_DIR)/%.o: $(SRC_SPECIFIC_DIR)/%.cpp | $(OBJ_SPECIFIC_DIR)
-	$(CXX) $(CFLAGS) $(SPECIFIC_EXTRA) -c $< -o $@
-
-$(OBJ_JSON_PARSER_DIR)/%.o: $(SRC_JSON_PARSER_DIR)/%.cpp | $(OBJ_JSON_PARSER_DIR)
-	$(CXX) $(CFLAGS) $(JSON_PARSER_EXTRA)  -c $< -o $@
-
-# Main Rule
-# I don't know if this will work, it's not final
-# Is similar to how it built on windows should be compatible with winegcc
-
-TR2Main.rc.res: TR2Main.rc
-	$(RC) $(RCFLAGS) -fo$@ $<
-
-$(TARGET): ${OBJ_PRE} ${OBJ_GAME_DIR} ${OBJ_GLOBAL_DIR} ${OBJ_MODDING_DIR} ${OBJ_3DSYSTEM_DIR} ${OBJ_SPECIFIC_DIR} ${OBJ_JSON_PARSER_DIR} TR2Main.rc.res
-	$(CXX) -shared -Wl,--output-def=bin\DX9-Release\libTR2Main.def -Wl,--out-implib=bin\DX9-Release\libTR2Main.a -Wl,--dll -o $@ $^ -static-libstdc++ -static-libgcc -static -m32 -Wl,--kill-at -s  -luser32 -lshell32 -lgdi32 -lgdiplus -lcomctl32 -lshlwapi -lwinmm -lhid -lole32 -loleaut32 -lsetupapi -ldxguid -ld3d9 -ld3dx9 -ldinput8 -ldsound
+.PHONY: dirsetup
+dirsetup:
+	@mkdir -p $(OBJ_GAME_DIR)
+	@mkdir -p $(OBJ_GLOBAL_DIR)
+	@mkdir -p $(OBJ_MODDING_DIR)
+	@mkdir -p $(OBJ_3DSYSTEM_DIR)
+	@mkdir -p $(OBJ_SPECIFIC_DIR)
+	@mkdir -p $(OBJ_JSON_PARSER_DIR)
 
 .DEFAULT_GOAL := build
 
+
+
+
+
+# Target Wine
+TARGET := bin/DX9Wine-Release/TR2Main.dll
+
+all: $(TARGET) $(OBJ_PRE)
+
+$(OBJ_PRE): $(SRC_PRE)
+	$(CXX) $(CXXFLAGS) $(CONFIG) $(DXCONFIG) -c -o $@ $<
+
+$(TARGET): $(ALL_OBJS)
+
+# Rule to compile each .c file into a .o file
+$(OBJ_GAME_DIR)/%.o: $(SRC_GAME_DIR)/%.c | $(OBJ_GAME_DIR)
+	$(CC) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(GAME_EXTRA) -c $< -o $@
+
+$(OBJ_GLOBAL_DIR)/%.o: $(SRC_GLOBAL_DIR)/%.c | $(OBJ_GLOBAL_DIR)
+	$(CC) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(GLOBAL_EXTRA) -c $< -o $@
+
+$(OBJ_MODDING_DIR)/%.o: $(SRC_MODDING_DIR)/%.c | $(OBJ_MODDING_DIR)
+	$(CC) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(MODDING_EXTRA) -c $< -o $@
+
+$(OBJ_3DSYSTEM_DIR)/%.o: $(SRC_3DSYSTEM_DIR)/%.c | $(OBJ_3DSYSTEM_DIR)
+	$(CC) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(3DSYSTEM_EXTRA) -c $< -o $@
+
+$(OBJ_SPECIFIC_DIR)/%.o: $(SRC_SPECIFIC_DIR)/%.c | $(OBJ_SPECIFIC_DIR)
+	$(CC) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(SPECIFIC_EXTRA) -c $< -o $@
+
+$(OBJ_JSON_PARSER_DIR)/%.o: $(SRC_JSON_PARSER_DIR)/%.c | $(OBJ_JSON_PARSER_DIR)
+	$(CC) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(JSON_PARSER_EXTRA) -c $< -o $@
+
+# Rule to compile each .cpp file into a .o file
+$(OBJ_GAME_DIR)/%.o: $(SRC_GAME_DIR)/%.cpp | $(OBJ_GAME_DIR)
+	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(GAME_EXTRA) -c $< -o $@
+
+$(OBJ_GLOBAL_DIR)/%.o: $(SRC_GLOBAL_DIR)/%.cpp | $(OBJ_GLOBAL_DIR)
+	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(GLOBAL_EXTRA) -c $< -o $@
+
+$(OBJ_MODDING_DIR)/%.o: $(SRC_MODDING_DIR)/%.cpp | $(OBJ_MODDING_DIR)
+	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(MODDING_EXTRA) -c $< -o $@
+
+$(OBJ_3DSYSTEM_DIR)/%.o: $(SRC_3DSYSTEM_DIR)/%.cpp | $(OBJ_3DSYSTEM_DIR)
+	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(3DSYSTEM_EXTRA) -c $< -o $@
+
+$(OBJ_SPECIFIC_DIR)/%.o: $(SRC_SPECIFIC_DIR)/%.cpp | $(OBJ_SPECIFIC_DIR)
+	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(SPECIFIC_EXTRA) -c $< -o $@
+
+$(OBJ_JSON_PARSER_DIR)/%.o: $(SRC_JSON_PARSER_DIR)/%.cpp | $(OBJ_JSON_PARSER_DIR)
+	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(JSON_PARSER_EXTRA)  -c $< -o $@
+
+# Main Rule
+# It can compile but don't resolve linking
+
+obj/DX9Wine-Release/TR2Main.rc.res: TR2Main.rc
+	$(RC) $(RCFLAGS) -fo$@ $<
+
+$(TARGET): ${OBJ_PRE} $(ALL_OBJS) obj/DX9Wine-Release/TR2Main.rc.res
+	mkdir -p bin/DX9Wine-Release
+	$(CXX) -shared -Wl,--out-implib=bin\DX9Wine-Release\libTR2Main.a -Wl,--dll -o $@ $^ \
+		-static-libstdc++ -static-libgcc -m32 -s  -luser32 -lshell32 -lgdi32 -lgdiplus \
+		-lcomctl32 -lshlwapi -lwinmm -lhid -lole32 -loleaut32 -lsetupapi -ldxguid -ld3d9 \
+		-ld3dx9 -ldinput8 -ldsound
+
 .PHONY: setup
 setup:
-	mkdir -p $(OBJ_GLOBAL_DIR)
-	mkdir -p $(OBJ_GAME_DIR)
-	mkdir -p $(OBJ_MODDING_DIR)
-	mkdir -p $(OBJ_3DSYSTEM_DIR)
-	mkdir -p $(OBJ_SPECIFIC_DIR)
-	mkdir -p $(OBJ_JSON_PARSER_DIR)
+	echo "there is only input and image file handling issues, eveything else compile" 
 
 # Phony target that runs setup before building
 .PHONY: build
-build: setup all
+build: setup dirsetup all
 
 .PHONY: clean
 clean:
-	rm -fr $(TARGET): ${OBJ_PRE} ${OBJ_GAME_DIR} ${OBJ_GLOBAL_DIR} ${OBJ_MODDING_DIR} ${OBJ_3DSYSTEM_DIR} ${OBJ_SPECIFIC_DIR} ${OBJ_JSON_PARSER_DIR} TR2Main.rc.res $(TARGET)
+	rm -fr obj/DX9Wine-Release $(TARGET)
 
