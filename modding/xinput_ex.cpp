@@ -22,12 +22,13 @@
 #include "global/precompiled.h"
 #include "modding/xinput_ex.h"
 #include "global/vars.h"
+#include <windef.h>
 
 #ifdef FEATURE_INPUT_IMPROVED
 
 // Imports from xinput*.dll
 static HMODULE hXInput = NULL;
-static void (WINAPI *_XInputEnable)(WINBOOL) = NULL;
+static void (WINAPI *_XInputEnable)(BOOL) = NULL;
 static DWORD (WINAPI *_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*) = NULL;
 static DWORD (WINAPI *_XInputSetState)(DWORD, XINPUT_VIBRATION*) = NULL;
 static DWORD (WINAPI *_XInputGetState)(DWORD, XINPUT_STATE*) = NULL;
@@ -126,8 +127,12 @@ DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE *pState) {
 // "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
 // Unfortunately this information can not be found by just using DirectInput
 // ------------------------------------------------------------------------------
-#include <wbemidl.h>
-#include <oleauto.h>
+#include <wbemcli.h>
+#include <guiddef.h>
+#include <wchar.h>
+//#include <oleauto.h>
+// there is nothing for this __uuidof(WbemLocator)
+// The Thing That Should Not Be - Metallica
 
 BOOL IsXInputDevice(DWORD dwVendorId, DWORD dwProductId) {
 	IWbemLocator* pIWbemLocator = NULL;
@@ -148,8 +153,8 @@ BOOL IsXInputDevice(DWORD dwVendorId, DWORD dwProductId) {
 	bool bCleanupCOM = SUCCEEDED(hr);
 
 	// Create WMI
-	hr = CoCreateInstance(__uuidof(WbemLocator), NULL, CLSCTX_INPROC_SERVER,
-							__uuidof(IWbemLocator), (LPVOID*) &pIWbemLocator);
+	//hr = CoCreateInstance(__uuidof(WbemLocator), NULL, CLSCTX_INPROC_SERVER,
+				        //__uuidof(IWbemLocator), (LPVOID*) &pIWbemLocator);
 	if( FAILED(hr) || pIWbemLocator == NULL ) goto LCleanup;
 
 	bstrNamespace = SysAllocString(L"\\\\.\\root\\cimv2");

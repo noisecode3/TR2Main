@@ -25,14 +25,17 @@
 
 //libhid or libusb
 
+#include <stdint.h>
+typedef uint16_t UWORD;
+
 #ifdef FEATURE_INPUT_IMPROVED
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <hidusage.h>
-//#include <hidpi.h>
-//#include <hidsdi.h>
+#include <ddk/hidpi.h>
+#include <ddk/hidsdi.h>
 #include <setupapi.h>
 
 #ifdef __cplusplus
@@ -894,3 +897,269 @@ bool RawInputGetState(RINPUT_STATE *pState) {
 }
 
 #endif // FEATURE_INPUT_IMPROVED
+/*
+modding/raw_input.cpp:120:28: error: ‘PHIDD_ATTRIBUTES’ was not declared in this scope; did you mean ‘PSID_AND_ATTRIBUTES’?
+  120 | static bool IsRawBluetooth(PHIDD_ATTRIBUTES pAttr, PHIDP_CAPS pCaps) {
+      |                            ^~~~~~~~~~~~~~~~
+      |                            PSID_AND_ATTRIBUTES
+modding/raw_input.cpp:120:52: error: ‘PHIDP_CAPS’ was not declared in this scope
+  120 | static bool IsRawBluetooth(PHIDD_ATTRIBUTES pAttr, PHIDP_CAPS pCaps) {
+      |                                                    ^~~~~~~~~~
+modding/raw_input.cpp:120:68: error: expression list treated as compound expression in initializer [-fpermissive]
+  120 | static bool IsRawBluetooth(PHIDD_ATTRIBUTES pAttr, PHIDP_CAPS pCaps) {
+      |                                                                    ^
+modding/raw_input.cpp: In function ‘bool RawInputEnumerate(BOOL (__attribute__((stdcall)) *)(LPGUID, LPCTSTR, LPCTSTR, WORD, WORD, LPVOID), LPVOID)’:
+modding/raw_input.cpp:181:9: error: ‘HidD_GetHidGuid’ was not declared in this scope
+  181 |         HidD_GetHidGuid(&hidGuid);
+      |         ^~~~~~~~~~~~~~~
+modding/raw_input.cpp:199:33: error: ‘PHIDP_PREPARSED_DATA’ was not declared in this scope; did you mean ‘RIDI_PREPARSEDDATA’?
+  199 |                                 PHIDP_PREPARSED_DATA pPreparsed = NULL;
+      |                                 ^~~~~~~~~~~~~~~~~~~~
+      |                                 RIDI_PREPARSEDDATA
+modding/raw_input.cpp:200:33: error: ‘HIDD_ATTRIBUTES’ was not declared in this scope; did you mean ‘SID_AND_ATTRIBUTES’?
+  200 |                                 HIDD_ATTRIBUTES attr;
+      |                                 ^~~~~~~~~~~~~~~
+      |                                 SID_AND_ATTRIBUTES
+modding/raw_input.cpp:201:33: error: ‘HIDP_CAPS’ was not declared in this scope; did you mean ‘DIDEVCAPS’?
+  201 |                                 HIDP_CAPS caps;
+      |                                 ^~~~~~~~~
+      |                                 DIDEVCAPS
+modding/raw_input.cpp:202:78: error: ‘attr’ was not declared in this scope
+  202 |                                 bool fetched = (HidD_GetAttributes(hDevice, &attr)
+      |                                                                              ^~~~
+modding/raw_input.cpp:202:49: error: ‘HidD_GetAttributes’ was not declared in this scope
+  202 |                                 bool fetched = (HidD_GetAttributes(hDevice, &attr)
+      |                                                 ^~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:203:76: error: ‘pPreparsed’ was not declared in this scope
+  203 |                                         && HidD_GetPreparsedData(hDevice, &pPreparsed)
+      |                                                                            ^~~~~~~~~~
+modding/raw_input.cpp:203:44: error: ‘HidD_GetPreparsedData’ was not declared in this scope
+  203 |                                         && HidD_GetPreparsedData(hDevice, &pPreparsed)
+      |                                            ^~~~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:204:44: error: ‘HIDP_STATUS_SUCCESS’ was not declared in this scope
+  204 |                                         && HIDP_STATUS_SUCCESS == HidP_GetCaps(pPreparsed, &caps));
+      |                                            ^~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:204:93: error: ‘caps’ was not declared in this scope
+  204 |                                         && HIDP_STATUS_SUCCESS == HidP_GetCaps(pPreparsed, &caps));
+      |                                                                                             ^~~~
+modding/raw_input.cpp:204:67: error: ‘HidP_GetCaps’ was not declared in this scope
+  204 |                                         && HIDP_STATUS_SUCCESS == HidP_GetCaps(pPreparsed, &caps));
+      |                                                                   ^~~~~~~~~~~~
+modding/raw_input.cpp:205:58: error: ‘HidD_FreePreparsedData’ was not declared in this scope
+  205 |                                 if( pPreparsed != NULL ) HidD_FreePreparsedData(pPreparsed);
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:211:137: error: ‘IsRawBluetooth’ cannot be used as a function
+  211 |                                         LPCTSTR productName = GetRawInputName(attr.VendorID, attr.ProductID, IsRawBluetooth(&attr, &caps));
+      |                                                                                                                                         ^
+modding/raw_input.cpp: At global scope:
+modding/raw_input.cpp:239:17: error: ‘PHIDP_PREPARSED_DATA’ does not name a type; did you mean ‘RIDI_PREPARSEDDATA’?
+  239 |                 PHIDP_PREPARSED_DATA pPreparsedData = NULL;
+      |                 ^~~~~~~~~~~~~~~~~~~~
+      |                 RIDI_PREPARSEDDATA
+modding/raw_input.cpp:240:17: error: ‘PHIDP_BUTTON_CAPS’ does not name a type
+  240 |                 PHIDP_BUTTON_CAPS pButtonCaps = NULL;
+      |                 ^~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:241:17: error: ‘PHIDP_VALUE_CAPS’ does not name a type
+  241 |                 PHIDP_VALUE_CAPS pValueCaps = NULL;
+      |                 ^~~~~~~~~~~~~~~~
+modding/raw_input.cpp:242:17: error: ‘HIDD_ATTRIBUTES’ does not name a type; did you mean ‘SID_AND_ATTRIBUTES’?
+  242 |                 HIDD_ATTRIBUTES HidAttr;
+      |                 ^~~~~~~~~~~~~~~
+      |                 SID_AND_ATTRIBUTES
+modding/raw_input.cpp:243:17: error: ‘HIDP_CAPS’ does not name a type; did you mean ‘DIDEVCAPS’?
+  243 |                 HIDP_CAPS HidCaps;
+      |                 ^~~~~~~~~
+      |                 DIDEVCAPS
+modding/raw_input.cpp: In member function ‘bool RawHidDevice::Connect()’:
+modding/raw_input.cpp:295:55: error: ‘HidAttr’ was not declared in this scope
+  295 |                 if( !HidD_GetAttributes(hDeviceFile, &HidAttr) ||
+      |                                                       ^~~~~~~
+modding/raw_input.cpp:295:22: error: ‘HidD_GetAttributes’ was not declared in this scope
+  295 |                 if( !HidD_GetAttributes(hDeviceFile, &HidAttr) ||
+      |                      ^~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:296:62: error: ‘pPreparsedData’ was not declared in this scope
+  296 |                         !HidD_GetPreparsedData(hDeviceFile, &pPreparsedData) ||
+      |                                                              ^~~~~~~~~~~~~~
+modding/raw_input.cpp:296:26: error: ‘HidD_GetPreparsedData’ was not declared in this scope
+  296 |                         !HidD_GetPreparsedData(hDeviceFile, &pPreparsedData) ||
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:297:25: error: ‘HIDP_STATUS_SUCCESS’ was not declared in this scope
+  297 |                         HIDP_STATUS_SUCCESS != HidP_GetCaps(pPreparsedData, &HidCaps) )
+      |                         ^~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:297:78: error: ‘HidCaps’ was not declared in this scope
+  297 |                         HIDP_STATUS_SUCCESS != HidP_GetCaps(pPreparsedData, &HidCaps) )
+      |                                                                              ^~~~~~~
+modding/raw_input.cpp:297:48: error: ‘HidP_GetCaps’ was not declared in this scope
+  297 |                         HIDP_STATUS_SUCCESS != HidP_GetCaps(pPreparsedData, &HidCaps) )
+      |                                                ^~~~~~~~~~~~
+modding/raw_input.cpp:302:47: error: ‘HidAttr’ was not declared in this scope
+  302 |                 isBluetooth = IsRawBluetooth(&HidAttr, &HidCaps);
+      |                                               ^~~~~~~
+modding/raw_input.cpp:302:57: error: ‘HidCaps’ was not declared in this scope
+  302 |                 isBluetooth = IsRawBluetooth(&HidAttr, &HidCaps);
+      |                                                         ^~~~~~~
+modding/raw_input.cpp:302:64: error: ‘IsRawBluetooth’ cannot be used as a function
+  302 |                 isBluetooth = IsRawBluetooth(&HidAttr, &HidCaps);
+      |                                                                ^
+modding/raw_input.cpp:304:17: error: ‘pButtonCaps’ was not declared in this scope
+  304 |                 pButtonCaps = (PHIDP_BUTTON_CAPS)HeapAlloc(hHeap, 0, sizeof(HIDP_BUTTON_CAPS) * HidCaps.NumberInputButtonCaps);
+      |                 ^~~~~~~~~~~
+modding/raw_input.cpp:304:32: error: ‘PHIDP_BUTTON_CAPS’ was not declared in this scope
+  304 |                 pButtonCaps = (PHIDP_BUTTON_CAPS)HeapAlloc(hHeap, 0, sizeof(HIDP_BUTTON_CAPS) * HidCaps.NumberInputButtonCaps);
+      |                                ^~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:305:17: error: ‘pValueCaps’ was not declared in this scope
+  305 |                 pValueCaps = (PHIDP_VALUE_CAPS)HeapAlloc(hHeap, 0, sizeof(HIDP_VALUE_CAPS) * HidCaps.NumberInputValueCaps);
+      |                 ^~~~~~~~~~
+modding/raw_input.cpp:305:31: error: ‘PHIDP_VALUE_CAPS’ was not declared in this scope
+  305 |                 pValueCaps = (PHIDP_VALUE_CAPS)HeapAlloc(hHeap, 0, sizeof(HIDP_VALUE_CAPS) * HidCaps.NumberInputValueCaps);
+      |                               ^~~~~~~~~~~~~~~~
+modding/raw_input.cpp: In member function ‘void RawHidDevice::Disconnect(bool)’:
+modding/raw_input.cpp:321:21: error: ‘pPreparsedData’ was not declared in this scope
+  321 |                 if( pPreparsedData != NULL ) {
+      |                     ^~~~~~~~~~~~~~
+modding/raw_input.cpp:322:25: error: ‘HidD_FreePreparsedData’ was not declared in this scope
+  322 |                         HidD_FreePreparsedData(pPreparsedData);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:325:21: error: ‘pButtonCaps’ was not declared in this scope
+  325 |                 if( pButtonCaps != NULL ) {
+      |                     ^~~~~~~~~~~
+modding/raw_input.cpp:329:21: error: ‘pValueCaps’ was not declared in this scope
+  329 |                 if( pValueCaps != NULL ) {
+      |                     ^~~~~~~~~~
+modding/raw_input.cpp:337:25: error: ‘HidAttr’ was not declared in this scope
+  337 |                 memset(&HidAttr, 0, sizeof(HidAttr));
+      |                         ^~~~~~~
+modding/raw_input.cpp:338:25: error: ‘HidCaps’ was not declared in this scope
+  338 |                 memset(&HidCaps, 0, sizeof(HidCaps));
+      |                         ^~~~~~~
+modding/raw_input.cpp: In member function ‘bool RawHidDevice::Calibrate()’:
+modding/raw_input.cpp:390:17: error: ‘HidAttr’ was not declared in this scope
+  390 |         switch( HidAttr.VendorID ) {
+      |                 ^~~~~~~
+modding/raw_input.cpp:398:42: error: ‘HidD_GetFeature’ was not declared in this scope
+  398 |                                 result = HidD_GetFeature(hDeviceFile, buf, sizeof(buf));
+      |                                          ^~~~~~~~~~~~~~~
+modding/raw_input.cpp:404:42: error: ‘HidD_GetFeature’ was not declared in this scope
+  404 |                                 result = HidD_GetFeature(hDeviceFile, buf, sizeof(buf));
+      |                                          ^~~~~~~~~~~~~~~
+modding/raw_input.cpp: In member function ‘bool RawHidDevice::ParseRawInputStandard(LPBYTE, DWORD, RAW_STATE*)’:
+modding/raw_input.cpp:562:31: error: ‘pPreparsedData’ was not declared in this scope
+  562 |         if( pState == NULL || pPreparsedData == NULL || pButtonCaps == NULL || pValueCaps == NULL ) return false;
+      |                               ^~~~~~~~~~~~~~
+modding/raw_input.cpp:562:57: error: ‘pButtonCaps’ was not declared in this scope
+  562 |         if( pState == NULL || pPreparsedData == NULL || pButtonCaps == NULL || pValueCaps == NULL ) return false;
+      |                                                         ^~~~~~~~~~~
+modding/raw_input.cpp:562:80: error: ‘pValueCaps’ was not declared in this scope
+  562 |         if( pState == NULL || pPreparsedData == NULL || pButtonCaps == NULL || pValueCaps == NULL ) return false;
+      |                                                                                ^~~~~~~~~~
+modding/raw_input.cpp:565:19: error: ‘HidCaps’ was not declared in this scope
+  565 |         capsLen = HidCaps.NumberInputButtonCaps;
+      |                   ^~~~~~~
+modding/raw_input.cpp:566:13: error: ‘HIDP_STATUS_SUCCESS’ was not declared in this scope
+  566 |         if( HIDP_STATUS_SUCCESS != HidP_GetButtonCaps(HidP_Input, pButtonCaps, &capsLen, pPreparsedData) ) return false;
+      |             ^~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:566:55: error: ‘HidP_Input’ was not declared in this scope
+  566 |         if( HIDP_STATUS_SUCCESS != HidP_GetButtonCaps(HidP_Input, pButtonCaps, &capsLen, pPreparsedData) ) return false;
+      |                                                       ^~~~~~~~~~
+modding/raw_input.cpp:566:67: error: ‘pButtonCaps’ was not declared in this scope
+  566 |         if( HIDP_STATUS_SUCCESS != HidP_GetButtonCaps(HidP_Input, pButtonCaps, &capsLen, pPreparsedData) ) return false;
+      |                                                                   ^~~~~~~~~~~
+modding/raw_input.cpp:566:90: error: ‘pPreparsedData’ was not declared in this scope
+  566 |         if( HIDP_STATUS_SUCCESS != HidP_GetButtonCaps(HidP_Input, pButtonCaps, &capsLen, pPreparsedData) ) return false;
+      |                                                                                          ^~~~~~~~~~~~~~
+modding/raw_input.cpp:566:36: error: ‘HidP_GetButtonCaps’ was not declared in this scope
+  566 |         if( HIDP_STATUS_SUCCESS != HidP_GetButtonCaps(HidP_Input, pButtonCaps, &capsLen, pPreparsedData) ) return false;
+      |                                    ^~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:567:30: error: ‘pButtonCaps’ was not declared in this scope
+  567 |         pState->numButtons = pButtonCaps->Range.UsageMax - pButtonCaps->Range.UsageMin + 1;
+      |                              ^~~~~~~~~~~
+modding/raw_input.cpp:571:13: error: ‘HIDP_STATUS_SUCCESS’ was not declared in this scope
+  571 |         if( HIDP_STATUS_SUCCESS != HidP_GetUsages(HidP_Input, pButtonCaps->UsagePage,
+      |             ^~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:571:51: error: ‘HidP_Input’ was not declared in this scope
+  571 |         if( HIDP_STATUS_SUCCESS != HidP_GetUsages(HidP_Input, pButtonCaps->UsagePage,
+      |                                                   ^~~~~~~~~~
+modding/raw_input.cpp:572:35: error: ‘pPreparsedData’ was not declared in this scope
+  572 |                 0, usage, &value, pPreparsedData, (PCHAR)buf, bufLen) ) return false;
+      |                                   ^~~~~~~~~~~~~~
+modding/raw_input.cpp:571:36: error: ‘HidP_GetUsages’ was not declared in this scope
+  571 |         if( HIDP_STATUS_SUCCESS != HidP_GetUsages(HidP_Input, pButtonCaps->UsagePage,
+      |                                    ^~~~~~~~~~~~~~
+modding/raw_input.cpp:580:13: error: ‘HIDP_STATUS_SUCCESS’ was not declared in this scope
+  580 |         if( HIDP_STATUS_SUCCESS != HidP_GetValueCaps(HidP_Input, pValueCaps, &capsLen, pPreparsedData) ) return false;
+      |             ^~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:580:54: error: ‘HidP_Input’ was not declared in this scope
+  580 |         if( HIDP_STATUS_SUCCESS != HidP_GetValueCaps(HidP_Input, pValueCaps, &capsLen, pPreparsedData) ) return false;
+      |                                                      ^~~~~~~~~~
+modding/raw_input.cpp:580:66: error: ‘pValueCaps’ was not declared in this scope
+  580 |         if( HIDP_STATUS_SUCCESS != HidP_GetValueCaps(HidP_Input, pValueCaps, &capsLen, pPreparsedData) ) return false;
+      |                                                                  ^~~~~~~~~~
+modding/raw_input.cpp:580:88: error: ‘pPreparsedData’ was not declared in this scope
+  580 |         if( HIDP_STATUS_SUCCESS != HidP_GetValueCaps(HidP_Input, pValueCaps, &capsLen, pPreparsedData) ) return false;
+      |                                                                                        ^~~~~~~~~~~~~~
+modding/raw_input.cpp:580:36: error: ‘HidP_GetValueCaps’ was not declared in this scope
+  580 |         if( HIDP_STATUS_SUCCESS != HidP_GetValueCaps(HidP_Input, pValueCaps, &capsLen, pPreparsedData) ) return false;
+      |                                    ^~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:584:21: error: ‘HIDP_STATUS_SUCCESS’ was not declared in this scope
+  584 |                 if( HIDP_STATUS_SUCCESS != HidP_GetUsageValue(HidP_Input, pValueCaps[i].UsagePage,
+      |                     ^~~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:584:63: error: ‘HidP_Input’ was not declared in this scope
+  584 |                 if( HIDP_STATUS_SUCCESS != HidP_GetUsageValue(HidP_Input, pValueCaps[i].UsagePage,
+      |                                                               ^~~~~~~~~~
+modding/raw_input.cpp:584:75: error: ‘pValueCaps’ was not declared in this scope
+  584 |                 if( HIDP_STATUS_SUCCESS != HidP_GetUsageValue(HidP_Input, pValueCaps[i].UsagePage,
+      |                                                                           ^~~~~~~~~~
+modding/raw_input.cpp:585:66: error: ‘pPreparsedData’ was not declared in this scope
+  585 |                         0, pValueCaps[i].Range.UsageMin, &value, pPreparsedData, (PCHAR)buf, bufLen) ) continue;
+      |                                                                  ^~~~~~~~~~~~~~
+modding/raw_input.cpp:584:44: error: ‘HidP_GetUsageValue’ was not declared in this scope
+  584 |                 if( HIDP_STATUS_SUCCESS != HidP_GetUsageValue(HidP_Input, pValueCaps[i].UsagePage,
+      |                                            ^~~~~~~~~~~~~~~~~~
+modding/raw_input.cpp:587:25: error: ‘pValueCaps’ was not declared in this scope
+  587 |                 switch( pValueCaps[i].Range.UsageMin ) {
+      |                         ^~~~~~~~~~
+modding/raw_input.cpp:589:43: error: ‘UWORD’ was not declared in this scope; did you mean ‘WORD’?
+  589 |                         pState->valueX = (UWORD)value - pValueCaps[i].LogicalMin;
+      |                                           ^~~~~
+      |                                           WORD
+modding/raw_input.cpp:613:44: error: expected ‘)’ before ‘pValueCaps’
+  613 |                         if( value < (UWORD)pValueCaps[i].LogicalMin || value > (UWORD)pValueCaps[i].LogicalMax ) {
+      |                           ~                ^~~~~~~~~~
+      |                                            )
+modding/raw_input.cpp: In member function ‘bool RawHidDevice::SendRawReport(bool)’:
+modding/raw_input.cpp:688:18: error: ‘HidCaps’ was not declared in this scope
+  688 |         BYTE buf[HidCaps.OutputReportByteLength];
+      |                  ^~~~~~~
+modding/raw_input.cpp:689:17: error: ‘HidAttr’ was not declared in this scope
+  689 |         switch( HidAttr.VendorID ) {
+      |                 ^~~~~~~
+modding/raw_input.cpp:693:55: error: ‘buf’ was not declared in this scope
+  693 |                         result = SonyControllerReport(buf, sizeof(buf), HidAttr.ProductID, NULL);
+      |                                                       ^~~
+modding/raw_input.cpp:696:55: error: ‘buf’ was not declared in this scope
+  696 |                         result = SonyControllerReport(buf, sizeof(buf), HidAttr.ProductID, &RawReport);
+      |                                                       ^~~
+modding/raw_input.cpp:704:30: error: ‘buf’ was not declared in this scope
+  704 |         if( !result || !Send(buf, sizeof(buf)) ) {
+      |                              ^~~
+modding/raw_input.cpp: In member function ‘bool RawHidDevice::ReceiveRawInput()’:
+modding/raw_input.cpp:717:49: error: ‘HidCaps’ was not declared in this scope
+  717 |         if( !isConnected || !Receive(pRawInput, HidCaps.InputReportByteLength) ) {
+      |                                                 ^~~~~~~
+modding/raw_input.cpp:726:28: error: ‘HidAttr’ was not declared in this scope
+  726 |         if( isBluetooth && HidAttr.VendorID == VID_SONY ) {
+      |                            ^~~~~~~
+modding/raw_input.cpp:746:17: error: ‘HidAttr’ was not declared in this scope
+  746 |         switch( HidAttr.VendorID ) {
+      |                 ^~~~~~~
+modding/raw_input.cpp:754:90: error: ‘HidCaps’ was not declared in this scope
+  754 |                                 result = ParseRawInputSonyDualShock4(pRawInput + offset, HidCaps.InputReportByteLength, &state);
+      |                                                                                          ^~~~~~~
+modding/raw_input.cpp:760:89: error: ‘HidCaps’ was not declared in this scope
+  760 |                                 result = ParseRawInputSonyDualSense(pRawInput + offset, HidCaps.InputReportByteLength-1, &state);
+      |                                                                                         ^~~~~~~
+modding/raw_input.cpp:771:59: error: ‘HidCaps’ was not declared in this scope
+  771 |                 result = ParseRawInputStandard(pRawInput, HidCaps.InputReportByteLength, &state);
+      |                                                           ^~~~~~~
+
+ */

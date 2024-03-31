@@ -152,9 +152,6 @@ dirsetup:
 .DEFAULT_GOAL := build
 
 
-
-
-
 # Target Wine
 TARGET := bin/DX9Wine-Release/TR2Main.dll
 
@@ -209,7 +206,10 @@ $(OBJ_JSON_PARSER_DIR)/%.o: $(SRC_JSON_PARSER_DIR)/%.cpp | $(OBJ_JSON_PARSER_DIR
 obj/DX9Wine-Release/TR2Main.rc.res: TR2Main.rc
 	$(RC) $(RCFLAGS) -fo$@ $<
 
-$(TARGET): ${OBJ_PRE} $(ALL_OBJS) obj/DX9Wine-Release/TR2Main.rc.res
+obj/DX9Wine-Release/TR2Main.o: TR2Main.cpp
+	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(GAME_EXTRA) -c $< -o $@
+
+$(TARGET): ${OBJ_PRE} $(ALL_OBJS) obj/DX9Wine-Release/TR2Main.o obj/DX9Wine-Release/TR2Main.rc.res
 	mkdir -p bin/DX9Wine-Release
 	$(CXX) -shared -Wl,--out-implib=bin\DX9Wine-Release\libTR2Main.a -Wl,--dll -o $@ $^ \
 		-static-libstdc++ -static-libgcc -m32 -s  -luser32 -lshell32 -lgdi32 -lgdiplus \
@@ -218,7 +218,9 @@ $(TARGET): ${OBJ_PRE} $(ALL_OBJS) obj/DX9Wine-Release/TR2Main.rc.res
 
 .PHONY: setup
 setup:
-	echo "there is only input and image file handling issues, eveything else compile" 
+	echo "there is only input and image file handling issues"
+	echo "that need to be reimplamented with Cross-Platform Libraries"
+	echo "I want to fix everything with Wine-gdb on Linux"
 
 # Phony target that runs setup before building
 .PHONY: build

@@ -26,7 +26,7 @@
 
 #ifdef FEATURE_INPUT_IMPROVED
 // all essential definitions are inside XInput.h, but no static lib linked here
-#include <XInput.h>
+#include <xinput.h>
 
 #ifndef XINPUT_GAMEPAD_GUIDE
 #define XINPUT_GAMEPAD_GUIDE (0x400)
