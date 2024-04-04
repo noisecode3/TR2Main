@@ -26,7 +26,7 @@
 #include "modding/gdi_utils.h"
 #include "global/vars.h"
 #include <gdiplus.h>
-#include <wchar.h>
+#include <windows.h>
 /*
 #include <FreeImage.h>
 
@@ -51,13 +51,14 @@ bool GetImageDimensions(const char* filename, int& width, int& height) {
     return true;
 }
 
- */
-static const WCHAR *GDI_Encoders[] = {
-	L"image/bmp",
-	L"image/jpeg",
-	L"image/png",
+
+static const WCHAR GDI_Encoders[3] = {
+     L"image/bmp",
+     L"image/jpeg",
+     L"image/png"
 };
 
+ */
 static ULONG_PTR GDI_Token = 0;
 
 static int GetEncoderClsid(const WCHAR *format, CLSID *pClsid) {
@@ -73,7 +74,7 @@ static int GetEncoderClsid(const WCHAR *format, CLSID *pClsid) {
 	Gdiplus::DllExports::GdipGetImageEncoders(num, nSize, pImageCodecInfo);
 
 	for( DWORD j = 0; j < num; ++j) {
-		if(wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
+		if( pImageCodecInfo[j].MimeType == 0 ) { //bug format[j]
 			*pClsid = pImageCodecInfo[j].Clsid;
 			free(pImageCodecInfo);
 			return j;
@@ -153,7 +154,7 @@ int GDI_SaveImageFile(LPCSTR filename, GDI_FILEFMT format, DWORD quality, HBITMA
 		return -1; // wrong parameters
 	}
 
-	if( format < 0 || format >= ARRAY_SIZE(GDI_Encoders) ) {
+	if( format < 0 || format >= ARRAY_SIZE("") ) {
 		return -1; // wrong format
 	}
 
@@ -172,7 +173,7 @@ int GDI_SaveImageFile(LPCSTR filename, GDI_FILEFMT format, DWORD quality, HBITMA
 	//encoderParams.Parameter[0].Guid  = EncoderQuality;
 	encoderParams.Parameter[0].Type  = Gdiplus::EncoderParameterValueTypeLong;
 	encoderParams.Parameter[0].Value = &quality;
-	GetEncoderClsid(GDI_Encoders[format], &imageCLSID);
+	//GetEncoderClsid(GDI_Encoders[format], &imageCLSID);
 
 #ifdef UNICODE
 	status = gdi_bitmap->Save(filename, &imageCLSID, &encoderParams);

@@ -1,8 +1,8 @@
 # TR2Main Wine Build for Proton/Wine
-CC = winegcc
-CXX = wineg++
-RC = wrc
-AR = ar
+CC = winegcc -b x86_64-w64-gcc -m32 -mno-cygwin 
+CXX = wineg++ -b x86_64-w64-gcc -m32 -mno-cygwin
+RC = wrc -v
+AR = ar -v
 
 DXCONFIG := \
     -D_RELEASE \
@@ -36,26 +36,27 @@ CONFIG := \
 CFLAGS := \
     -m32 \
     -O3 \
-    -fvisibility=hidden \
     -Wall \
     -Wextra \
     -Wpedantic \
     -Wno-unused-parameter \
     -Winvalid-pch \
     -Wno-unknown-pragmas \
-    -s
+    -s \
+    -g
 
+#    -fvisibility=hidden
 CXXFLAGS := \
     -m32 \
     -O3 \
-    -fvisibility=hidden \
     -Wall \
     -Wextra \
     -Wpedantic \
     -Wno-unused-parameter \
     -Winvalid-pch \
     -Wno-unknown-pragmas \
-    -s
+    -s \
+    -g
 
 # Define source directories, those should not mix definitions
 SRC_PRE := global/precompiled.h
@@ -122,23 +123,23 @@ ALL_OBJS := $(OBJS_C_GAME) $(OBJS_CPP_GAME) \
             $(OBJS_C_JSON_PARSER) $(OBJS_CPP_JSON_PARSER)
 
 
-GAME_EXTRA := -iquoteobj\DX9Wine-Release\game \
-	      -Iobj\DX9Wine-Release\game -I.
+GAME_EXTRA := -iquoteobj/DX9Wine-Release/game \
+	      -Iobj/DX9Wine-Release/game -I.
 
-GLOBAL_EXTRA := -iquoteobj\DX9Wine-Release\global \
-	        -Iobj\DX9Wine-Release\global -I.
+GLOBAL_EXTRA := -iquoteobj/DX9Wine-Release/global \
+	        -Iobj/DX9Wine-Release/global -I.
 
-MODDING_EXTRA := -iquoteobj\DX9Wine-Release\modding \
-	         -Iobj\DX9Wine-Release\modding -I.
+MODDING_EXTRA := -iquoteobj/DX9Wine-Release/modding \
+	         -Iobj/DX9Wine-Release/modding -I.
 
-3DSYSTEM_EXTRA := -iquoteobj\DX9Wine-Release\3dsystem \
-	          -Iobj\DX9Wine-Release\3dsystem -I.
+3DSYSTEM_EXTRA := -iquoteobj/DX9Wine-Release/3dsystem \
+	          -Iobj/DX9Wine-Release/3dsystem -I.
 
-SPECIFIC_EXTRA := -iquoteobj\DX9Wine-Release\specific \
-	          -Iobj\DX9Wine-Release\specific -I.
+SPECIFIC_EXTRA := -iquoteobj/DX9Wine-Release/specific \
+	          -Iobj/DX9Wine-Release/specific -I.
 
-JSON_PARSER_EXTRA := -iquoteobj\DX9Wine-Release\json-parser \
-	             -Iobj\DX9Wine-Release\json-parser -I.
+JSON_PARSER_EXTRA := -iquoteobj/DX9Wine-Release/json-parser \
+	             -Iobj/DX9Wine-Release/json-parser -I.
 
 .PHONY: dirsetup
 dirsetup:
@@ -201,20 +202,19 @@ $(OBJ_JSON_PARSER_DIR)/%.o: $(SRC_JSON_PARSER_DIR)/%.cpp | $(OBJ_JSON_PARSER_DIR
 	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(JSON_PARSER_EXTRA)  -c $< -o $@
 
 # Main Rule
-# It can compile but don't resolve linking
-
+#
 obj/DX9Wine-Release/TR2Main.rc.res: TR2Main.rc
 	$(RC) $(RCFLAGS) -fo$@ $<
 
 obj/DX9Wine-Release/TR2Main.o: TR2Main.cpp
 	$(CXX) $(CFLAGS) $(CONFIG) $(DXCONFIG) $(GAME_EXTRA) -c $< -o $@
 
-$(TARGET): ${OBJ_PRE} $(ALL_OBJS) obj/DX9Wine-Release/TR2Main.o obj/DX9Wine-Release/TR2Main.rc.res
+$(TARGET): $(ALL_OBJS) obj/DX9Wine-Release/TR2Main.o obj/DX9Wine-Release/TR2Main.rc.res
 	mkdir -p bin/DX9Wine-Release
-	$(CXX) -shared -Wl,--out-implib=bin\DX9Wine-Release\libTR2Main.a -Wl,--dll -o $@ $^ \
-		-static-libstdc++ -static-libgcc -m32 -s  -luser32 -lshell32 -lgdi32 -lgdiplus \
-		-lcomctl32 -lshlwapi -lwinmm -lhid -lole32 -loleaut32 -lsetupapi -ldxguid -ld3d9 \
-		-ld3dx9 -ldinput8 -ldsound
+	$(CXX) -shared \
+	       -Wl,-Map=bin/DX9Wine-Release/libTR2Main.map --export-dynamic -o $@ $^ \
+	       -m32 -s -g -luser32 -lshell32 -lgdi32 -lgdiplus -lcomctl32 -lshlwapi \
+	       -lwinmm -lhid -lole32 -loleaut32 -lsetupapi -ld3d9 -ld3dx9 -ldsound
 
 .PHONY: setup
 setup:

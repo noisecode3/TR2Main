@@ -1,4 +1,0 @@
--xc++
--m32
--I/usr/include/wine/windows/
--I.

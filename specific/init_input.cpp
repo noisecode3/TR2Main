@@ -185,13 +185,6 @@ bool IsJoyLedColorEnabled() {
 extern void __thiscall FlaggedStringDelete(STRING_FLAGGED *item);
 extern bool FlaggedStringCopy(STRING_FLAGGED *dst, STRING_FLAGGED *src);
 
-bool __cdecl DInputCreate() {
-#if (DIRECTINPUT_VERSION >= 0x800)
-	return SUCCEEDED(DirectInput8Create(GameModule, DIRECTINPUT_VERSION, IID_IDirectInput8, (LPVOID *)&DInput, NULL));
-#else // (DIRECTINPUT_VERSION >= 0x800)
-	return SUCCEEDED(DirectInputCreate(GameModule, DIRECTINPUT_VERSION, &DInput, NULL));
-#endif // (DIRECTINPUT_VERSION >= 0x800)
-}
 
 void __cdecl DInputRelease() {
 	if( DInput != NULL ) {
@@ -418,8 +411,8 @@ bool __cdecl WinInputInit() {
 	JoystickList.tail = NULL;
 	JoystickList.dwCount = 0;
 
-	if( !DInputCreate() )
-		return false;
+	//if( !DInputCreate() )
+		//return false;
 
 	result = DInputEnumDevices(&JoystickList);
 	DInputRelease();
@@ -428,6 +421,9 @@ bool __cdecl WinInputInit() {
 }
 
 bool __cdecl DInputEnumDevices(JOYSTICK_LIST *joystickList) {
+        // It crash here now it compile on linux winegcc, wine-tkg 9.5 
+        // It's a "bit" dirty right now, was desperately trying to compile
+        // something... It's not linking to dxguid or dinput..
 #ifdef FEATURE_INPUT_IMPROVED
 	for( DWORD i = 0; i < XUSER_MAX_COUNT; ++i ) {
 		XINPUT_STATE state;
@@ -531,12 +527,12 @@ JOYSTICK_NODE *__cdecl GetJoystick(GUID *lpGuid) {
 }
 
 void __cdecl DInputKeyboardCreate() {
-	if FAILED(DInput->CreateDevice(GUID_SysKeyboard, &IDID_SysKeyboard, NULL))
-		throw ERR_CantCreateKeyboardDevice;
+	//if FAILED(DInput->CreateDevice(GUID_SysKeyboard, &IDID_SysKeyboard, NULL))
+		//throw ERR_CantCreateKeyboardDevice;
 	if FAILED(IDID_SysKeyboard->SetCooperativeLevel(HGameWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE))
 		throw ERR_CantSetKBCooperativeLevel;
-	if FAILED(IDID_SysKeyboard->SetDataFormat(&c_dfDIKeyboard))
-		throw ERR_CantSetKBDataFormat;
+	//if FAILED(IDID_SysKeyboard->SetDataFormat(&c_dfDIKeyboard))
+		//throw ERR_CantSetKBDataFormat;
 
 	// NOTE: there is no DIERR_OTHERAPPHASPRIO check in the original code
 	HRESULT res = IDID_SysKeyboard->Acquire();
@@ -583,8 +579,8 @@ bool __cdecl DInputJoystickCreate() {
 		return false;
 	if FAILED(IDID_SysJoystick->SetCooperativeLevel(HGameWindow, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE))
 		return false;
-	if FAILED(IDID_SysJoystick->SetDataFormat(&c_dfDIJoystick))
-		return false;
+	//if FAILED(IDID_SysJoystick->SetDataFormat(&c_dfDIJoystick))
+		//return false;
 	if FAILED(IDID_SysJoystick->GetCapabilities(&JoyCaps))
 		return false;
 	if FAILED(IDID_SysJoystick->EnumObjects(DInputEnumJoystickAxisCallback, (LPVOID)JoyRanges, DIDFT_AXIS))
@@ -614,17 +610,17 @@ void __cdecl DInputJoystickRelease() {
 }
 
 void __cdecl WinInStart() {
-	if( !DInputCreate() )
-		throw ERR_CantCreateDirectInput;
+	//if( !DInputCreate() )
+	//	throw ERR_CantCreateDirectInput;
 
-	DInputKeyboardCreate();
-	DInputJoystickCreate();
+	//DInputKeyboardCreate();
+	//DInputJoystickCreate();
 }
 
 void __cdecl WinInFinish() {
-	DInputJoystickRelease();
-	DInputKeyboardRelease();
-	DInputRelease();
+	//DInputJoystickRelease();
+	//DInputKeyboardRelease();
+	//DInputRelease();
 }
 
 void __cdecl WinInRunControlPanel(HWND hWnd) {
@@ -647,18 +643,18 @@ void __cdecl WinInRunControlPanel(HWND hWnd) {
  * Inject function
  */
 void Inject_InitInput() {
-	INJECT(0x004472A0, DInputCreate);
+//	INJECT(0x004472A0, DInputCreate);
 	INJECT(0x004472D0, DInputRelease);
 	INJECT(0x004472F0, WinInReadKeyboard);
 	INJECT(0x00447350, WinInReadJoystick);
-	INJECT(0x00447460, WinInputInit);
+//	INJECT(0x00447460, WinInputInit);
 	INJECT(0x004474E0, DInputEnumDevices);
 	INJECT(0x00447510, DInputEnumDevicesCallback);
 	INJECT(0x00447600, FlaggedStringCreate);
 	INJECT(0x00447620, GetJoystick);
-	INJECT(0x00447670, DInputKeyboardCreate);
+//	INJECT(0x00447670, DInputKeyboardCreate);
 	INJECT(0x00447740, DInputKeyboardRelease);
-	INJECT(0x00447770, DInputJoystickCreate);
+//	INJECT(0x00447770, DInputJoystickCreate);
 //	INJECT(----------, DInputJoystickRelease);
 	INJECT(0x00447860, WinInStart);
 	INJECT(0x00447890, WinInFinish);

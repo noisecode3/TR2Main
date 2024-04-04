@@ -1190,9 +1190,9 @@ INT_PTR CALLBACK SE_ControlsDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 						ChangedAppSettings.JoystickEnabled = (1 == SendMessage((HWND)lParam, BM_GETCHECK, 0, 0));
 						break;
 					case ID_CTRLS_BUTTON_CTL_PANEL : // 'Run Control Panel' Button
-						DInputCreate();
-						WinInRunControlPanel(hwndDlg);
-						DInputRelease();
+						//DInputCreate();
+						//WinInRunControlPanel(hwndDlg);
+						//DInputRelease();
 						break;
 				}
 			} else if( HIWORD(wParam) == 1 ) { // ComboBoxes

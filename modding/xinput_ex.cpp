@@ -128,9 +128,9 @@ DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE *pState) {
 // Unfortunately this information can not be found by just using DirectInput
 // ------------------------------------------------------------------------------
 #include <wbemcli.h>
-#include <guiddef.h>
+//#include <guiddef.h>
 #include <wchar.h>
-//#include <oleauto.h>
+#include <oleauto.h>
 // there is nothing for this __uuidof(WbemLocator)
 // The Thing That Should Not Be - Metallica
 
